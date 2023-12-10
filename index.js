@@ -47,14 +47,16 @@ module.exports = async function ({
       issue_number: context.issue.number,
       per_page: perPage
     });
+    console.log(response.data)
     const maxIssuesComment = response.data.find(comment => comment.body.includes(maxIssuesCommentHeader));
-    if (maxIssuesComment !== undefined) {
-      await github.rest.issues.deleteComment({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        comment_id: maxIssuesComment.id
-      });
-    }
+    console.log(maxIssuesComment)
+    // if (maxIssuesComment !== undefined) {
+    //   await github.rest.issues.deleteComment({
+    //     owner: context.repo.owner,
+    //     repo: context.repo.repo,
+    //     comment_id: maxIssuesComment.id
+    //   });
+    // }
   } catch (error) {
     logError(`Failed to delete summary comment: ${error.message}`);
     return;
@@ -62,7 +64,8 @@ module.exports = async function ({
 
   if (issues.length > maxIssues) {
     // Create maxIssues comment, and exit
-    const body = `Ruff Check commenter found ${issues.length} issues, which exceeds the maximum of ${maxIssues}.\n${maxIssuesCommentHeader}`;
+    const body = `Ruff Check commenter found ${issues.length} issues`;
+    // which exceeds the maximum of ${maxIssues}.\n${maxIssuesCommentHeader}`;
     try {
       await github.rest.issues.createComment({
         owner: context.repo.owner,
@@ -90,8 +93,8 @@ module.exports = async function ({
         format: "diff",
       }
     });
-    // logVerbose('Received diff from GitHub.');
-    // logVerbose(response.data);
+    logVerbose('Received diff from GitHub.');
+    logVerbose(response.data);
     diff = new Diff(response.data);
     logVerbose(`Diff: ${JSON.stringify(diff, null, 2)}`);
   } catch (error) {
