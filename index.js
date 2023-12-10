@@ -40,10 +40,6 @@ module.exports = async function ({
     return;
   }
 
-  // const octokit = new Octokit({
-  //   auth: ghToken
-  // })
-
   // const maxIssuesCommentHeader = '<!-- Flutter Analyze Commenter: maxIssues -->';
   // delete exist maxIssues comment
   try {

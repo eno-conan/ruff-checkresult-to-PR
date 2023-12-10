@@ -22,18 +22,23 @@ inputs:
 runs:
   using: composite
   steps:
-    # - run: chmod +x ${{ github.action_path }}/scripts/setup.sh
-    #   shell: bash
     - uses: actions/checkout@v4
-    - name: Override octokit/core version and install deps
-      run: npm i @octokit/core
-      shell: bash
-    # - uses: actions/setup-node@v4
-    #   with:
-    #     node-version: 20
-    # - uses: ./
-    # - run: npm ci
+    # - name: Override octokit/core version and install deps
     #   shell: bash
+    #   run: |
+    #     npm install
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+    - run: npm install @octokit/core
+      shell: bash
+    # - name: Install dependencies
+    #   shell: bash
+    #   run: ls
+    # - name: Install dependencies
+    #   working-directory: ./
+    #   shell: bash
+    #   run: npm ci
     - uses: actions/github-script@v7
       if: ${{ github.event_name == 'pull_request' }}
       env:
