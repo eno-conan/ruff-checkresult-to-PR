@@ -22,7 +22,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - run: ${{ github.action_path }}/scripts/setup.sh
+    - run: chmod +x ${{ github.action_path }}/scripts/setup.sh
       shell: bash
     - uses: actions/setup-node@v4
       with:

@@ -40,9 +40,9 @@ module.exports = async function ({
     return;
   }
 
-  const octokit = new Octokit({
-    auth: ghToken
-  })
+  // const octokit = new Octokit({
+  //   auth: ghToken
+  // })
 
   // const maxIssuesCommentHeader = '<!-- Flutter Analyze Commenter: maxIssues -->';
   // delete exist maxIssues comment
@@ -50,6 +50,9 @@ module.exports = async function ({
     console.log(context.repo.owner)
     console.log(context.repo.repo)
     console.log(context.issue.number)
+    const octokit = new Octokit({
+      auth: ghToken
+    })
     const responseRest = await
       octokit.request(`GET /repos/{owner}/{repo}/pulls/comments`, {
         // octokit.request('GET /repos/eno-conan/ruff-check-app/issues/comments', {
