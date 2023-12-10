@@ -26,7 +26,6 @@ runs:
       with:
         retries: 3
         script: |
-          # 環境変数に値設定 
           const analyzeLog = process.env.ANALYZE_LOG;
           const verboseLogging = process.env.VERBOSE === 'true';
 
@@ -34,7 +33,5 @@ runs:
           const actionPath = process.env.GITHUB_ACTION_PATH;
 
           const path = require('path');
-          # 実行するファイルのパス設定
           const script = require(path.join(actionPath, 'index.js'));
-          # 実行
           await script({ core, github, context, workingDir, analyzeLog, verboseLogging })

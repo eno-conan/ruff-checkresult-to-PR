@@ -29,6 +29,7 @@ module.exports = async function ({
 
   let issues;
   try {
+    logVerbose(`Hello World`);
     const analyzerOutput = fs.readFileSync(analyzeLog, 'utf-8');
     logVerbose(`Analyzer output: ${analyzerOutput}`);
     issues = parseAnalyzerOutputs(analyzerOutput, workingDir);
