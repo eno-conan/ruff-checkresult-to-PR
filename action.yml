@@ -1,6 +1,6 @@
-name: "Flutter Analyze Commenter"
+name: "Ruff Check Result to PR Comment"
 
-description: "Auto comment on PRs based on Flutter Analyze results"
+description: "Auto comment on PRs based on Ruff Check results"
 
 branding:
   icon: code
@@ -8,7 +8,7 @@ branding:
 
 inputs:
   analyze_log:
-    description: "Path to the Flutter analyze log file"
+    description: "Path to the Ruff Check log file"
     required: true
   verbose:
     description: "Enable verbose logging"
