@@ -79,25 +79,25 @@ module.exports = async function ({
     }
   }
 
-  // // Retrieve diff
-  // let diff;
-  // try {
-  //   const response = await github.rest.pulls.get({
-  //     owner: context.repo.owner,
-  //     repo: context.repo.repo,
-  //     pull_number: context.issue.number,
-  //     mediaType: {
-  //       format: "diff",
-  //     }
-  //   });
-  //   // logVerbose('Received diff from GitHub.');
-  //   // logVerbose(response.data);
-  //   diff = new Diff(response.data);
-  //   logVerbose(`Diff: ${JSON.stringify(diff, null, 2)}`);
-  // } catch (error) {
-  //   logError(`Failed to retrieve diff: ${error.message}`);
-  //   return;
-  // }
+  // Retrieve diff
+  let diff;
+  try {
+    const response = await github.rest.pulls.get({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      pull_number: context.issue.number,
+      mediaType: {
+        format: "diff",
+      }
+    });
+    // logVerbose('Received diff from GitHub.');
+    // logVerbose(response.data);
+    diff = new Diff(response.data);
+    logVerbose(`Diff: ${JSON.stringify(diff, null, 2)}`);
+  } catch (error) {
+    logError(`Failed to retrieve diff: ${error.message}`);
+    return;
+  }
 
   // Create inline comments and outline comment
   let inlineComments;
