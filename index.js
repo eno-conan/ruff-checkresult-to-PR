@@ -29,7 +29,6 @@ module.exports = async function ({
 
   let issues;
   try {
-    logVerbose(`Hello World`);
     const analyzerOutput = fs.readFileSync(analyzeLog, 'utf-8');
     logVerbose(`Analyzer output: ${analyzerOutput}`);
     issues = parseAnalyzerOutputs(analyzerOutput, workingDir);
@@ -41,44 +40,44 @@ module.exports = async function ({
 
   const maxIssuesCommentHeader = '<!-- Flutter Analyze Commenter: maxIssues -->';
   // delete exist maxIssues comment
-  // try {
-  //   const response = await github.rest.issues.listComments({
-  //     owner: context.repo.owner,
-  //     repo: context.repo.repo,
-  //     issue_number: context.issue.number,
-  //     per_page: perPage
-  //   });
-  //   const maxIssuesComment = response.data.find(comment => comment.body.includes(maxIssuesCommentHeader));
-  //   if (maxIssuesComment !== undefined) {
-  //     await github.rest.issues.deleteComment({
-  //       owner: context.repo.owner,
-  //       repo: context.repo.repo,
-  //       comment_id: maxIssuesComment.id
-  //     });
-  //   }
-  // } catch (error) {
-  //   logError(`Failed to delete summary comment: ${error.message}`);
-  //   return;
-  // }
+  try {
+    const response = await github.rest.issues.listComments({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      issue_number: context.issue.number,
+      per_page: perPage
+    });
+    const maxIssuesComment = response.data.find(comment => comment.body.includes(maxIssuesCommentHeader));
+    if (maxIssuesComment !== undefined) {
+      await github.rest.issues.deleteComment({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        comment_id: maxIssuesComment.id
+      });
+    }
+  } catch (error) {
+    logError(`Failed to delete summary comment: ${error.message}`);
+    return;
+  }
 
-  // if (issues.length > maxIssues) {
-  //   // Create maxIssues comment, and exit
-  //   const body = `Ruff Check commenter found ${issues.length} issues, which exceeds the maximum of ${maxIssues}.\n${maxIssuesCommentHeader}`;
-  //   try {
-  //     await github.rest.issues.createComment({
-  //       owner: context.repo.owner,
-  //       repo: context.repo.repo,
-  //       issue_number: context.issue.number,
-  //       body: body
-  //     });
-  //     logVerbose(`Number of issues exceeds maximum: ${issues.length} > ${maxIssues}`);
-  //     return;
-  //   }
-  //   catch (error) {
-  //     logError(`Failed to create maxIssues comment: ${error.message}`);
-  //     return;
-  //   }
-  // }
+  if (issues.length > maxIssues) {
+    // Create maxIssues comment, and exit
+    const body = `Ruff Check commenter found ${issues.length} issues, which exceeds the maximum of ${maxIssues}.\n${maxIssuesCommentHeader}`;
+    try {
+      await github.rest.issues.createComment({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        issue_number: context.issue.number,
+        body: body
+      });
+      logVerbose(`Number of issues exceeds maximum: ${issues.length} > ${maxIssues}`);
+      return;
+    }
+    catch (error) {
+      logError(`Failed to create maxIssues comment: ${error.message}`);
+      return;
+    }
+  }
 
   // // Retrieve diff
   // let diff;
@@ -101,23 +100,23 @@ module.exports = async function ({
   // }
 
   // Create inline comments and outline comment
-  // let inlineComments;
-  // let outlineComment;
-  // try {
-  //   const { issuesInDiff, issuesNotInDiff } = filterIssuesByDiff(diff, issues);
-  //   logVerbose(`Issues in Diff: ${JSON.stringify(issuesInDiff, null, 2)}`);
-  //   logVerbose(`Issues not in Diff: ${JSON.stringify(issuesNotInDiff, null, 2)}`);
+  let inlineComments;
+  let outlineComment;
+  try {
+    const { issuesInDiff, issuesNotInDiff } = filterIssuesByDiff(diff, issues);
+    logVerbose(`Issues in Diff: ${JSON.stringify(issuesInDiff, null, 2)}`);
+    logVerbose(`Issues not in Diff: ${JSON.stringify(issuesNotInDiff, null, 2)}`);
 
-  //   const groupedIssues = groupIssuesByLine(issuesInDiff);
-  //   inlineComments = groupedIssues.map(group => new Comment(group));
-  //   logVerbose(`Inline comments: ${JSON.stringify(inlineComments, null, 2)}`);
+    const groupedIssues = groupIssuesByLine(issuesInDiff);
+    inlineComments = groupedIssues.map(group => new Comment(group));
+    logVerbose(`Inline comments: ${JSON.stringify(inlineComments, null, 2)}`);
 
-  //   //   outlineComment = issuesNotInDiff.length > 0 ? generateTableForIssuesNotInDiff(issuesNotInDiff) : null;
-  //   //   logVerbose(`Outline comment: ${outlineComment}`);
-  // } catch (error) {
-  //   logError(`Failed to create inline comments: ${error.message}`);
-  //   return;
-  // }
+    //   outlineComment = issuesNotInDiff.length > 0 ? generateTableForIssuesNotInDiff(issuesNotInDiff) : null;
+    //   logVerbose(`Outline comment: ${outlineComment}`);
+  } catch (error) {
+    logError(`Failed to create inline comments: ${error.message}`);
+    return;
+  }
 
   // // Delete outline comment
   // try {
@@ -178,30 +177,30 @@ module.exports = async function ({
   // }
 
   // Logic to determine which comments to create, update, or delete
-  // const commentsToAdd = inlineComments.filter(local =>
-  //   !remoteComments.some(remote => remote.matchesLocalComment(local))
-  // );
+  const commentsToAdd = inlineComments.filter(local =>
+    !remoteComments.some(remote => remote.matchesLocalComment(local))
+  );
   // const commentsToDelete = remoteComments.filter(remote =>
   //   !inlineComments.some(local => remote.matchesLocalComment(local))
   // );
 
-  // // Add new comments to the PR
-  // for (const comment of commentsToAdd) {
-  //   try {
-  //     await github.rest.pulls.createReviewComment({
-  //       owner: context.repo.owner,
-  //       repo: context.repo.repo,
-  //       pull_number: context.issue.number,
-  //       commit_id: context.payload.pull_request.head.sha,
-  //       path: comment.path,
-  //       side: "RIGHT",
-  //       line: comment.line,
-  //       body: comment.body
-  //     });
-  //   } catch (error) {
-  //     logError(`Failed to add comment: ${error.message}`);
-  //   }
-  // }
+  // Add new comments to the PR
+  for (const comment of commentsToAdd) {
+    try {
+      await github.rest.pulls.createReviewComment({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        pull_number: context.issue.number,
+        commit_id: context.payload.pull_request.head.sha,
+        path: comment.path,
+        side: "RIGHT",
+        line: comment.line,
+        body: comment.body
+      });
+    } catch (error) {
+      logError(`Failed to add comment: ${error.message}`);
+    }
+  }
 
   // // Delete missing comments from the PR
   // for (const comment of commentsToDelete) {
