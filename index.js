@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { Octokit } = require('@octokit/core');
 
 module.exports = async function ({
   core,
@@ -6,6 +7,7 @@ module.exports = async function ({
   context,
   workingDir,
   analyzeLog,
+  ghToken,
   verboseLogging,
 }) {
 
@@ -38,18 +40,37 @@ module.exports = async function ({
     return;
   }
 
-  const maxIssuesCommentHeader = '<!-- Flutter Analyze Commenter: maxIssues -->';
+  const octokit = new Octokit({
+    auth: ghToken
+  })
+
+  // const maxIssuesCommentHeader = '<!-- Flutter Analyze Commenter: maxIssues -->';
   // delete exist maxIssues comment
   try {
-    const response = await github.rest.issues.listComments({
-      owner: context.repo.owner,
-      repo: context.repo.repo,
-      issue_number: context.issue.number,
-      per_page: perPage
-    });
-    console.log(response.data)
-    const maxIssuesComment = response.data.find(comment => comment.body.includes(maxIssuesCommentHeader));
-    console.log(maxIssuesComment)
+    console.log(context.repo.owner)
+    console.log(context.repo.repo)
+    console.log(context.issue.number)
+    const responseRest = await
+      octokit.request(`GET /repos/{owner}/{repo}/pulls/comments`, {
+        // octokit.request('GET /repos/eno-conan/ruff-check-app/issues/comments', {
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        headers: {
+          'X-GitHub-Api-Version': '2022-11-28'
+        }
+      })
+    const data = responseRest.data
+    for (const d of data) {
+      console.log(d.body)
+    }
+
+    // const response = await github.rest.issues.listComments({
+    //   owner: context.repo.owner,
+    //   repo: context.repo.repo,
+    //   issue_number: context.issue.number,
+    //   per_page: perPage
+    // });
+    // const maxIssuesComment = response.data.find(comment => comment.body.includes(maxIssuesCommentHeader));
     // if (maxIssuesComment !== undefined) {
     //   await github.rest.issues.deleteComment({
     //     owner: context.repo.owner,
@@ -62,25 +83,25 @@ module.exports = async function ({
     return;
   }
 
-  if (issues.length > maxIssues) {
-    // Create maxIssues comment, and exit
-    const body = `Ruff Check commenter found ${issues.length} issues`;
-    // which exceeds the maximum of ${maxIssues}.\n${maxIssuesCommentHeader}`;
-    try {
-      await github.rest.issues.createComment({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        issue_number: context.issue.number,
-        body: body
-      });
-      logVerbose(`Number of issues exceeds maximum: ${issues.length} > ${maxIssues}`);
-      return;
-    }
-    catch (error) {
-      logError(`Failed to create maxIssues comment: ${error.message}`);
-      return;
-    }
-  }
+  // if (issues.length > maxIssues) {
+  //   // Create maxIssues comment, and exit
+  //   const body = `Ruff Check commenter found ${issues.length} issues`;
+  //   // which exceeds the maximum of ${maxIssues}.\n${maxIssuesCommentHeader}`;
+  //   try {
+  //     await github.rest.issues.createComment({
+  //       owner: context.repo.owner,
+  //       repo: context.repo.repo,
+  //       issue_number: context.issue.number,
+  //       body: body
+  //     });
+  //     logVerbose(`Number of issues exceeds maximum: ${issues.length} > ${maxIssues}`);
+  //     return;
+  //   }
+  //   catch (error) {
+  //     logError(`Failed to create maxIssues comment: ${error.message}`);
+  //     return;
+  //   }
+  // }
 
   // Retrieve diff
   let diff;

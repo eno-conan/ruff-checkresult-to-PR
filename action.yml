@@ -10,6 +10,10 @@ inputs:
   analyze_log:
     description: "Path to the Ruff Check log file"
     required: true
+  gh_token:
+    required: true
+    default: ${{ github.token }}
+    description: "GitHub Token"
   verbose:
     description: "Enable verbose logging"
     required: false
@@ -22,11 +26,13 @@ runs:
       if: ${{ github.event_name == 'pull_request' }}
       env:
         ANALYZE_LOG: ${{ inputs.analyze_log }}
+        GH_TOKEN: ${{ inputs.gh_token }}
         VERBOSE: ${{ inputs.verbose }}
       with:
         retries: 3
         script: |
           const analyzeLog = process.env.ANALYZE_LOG;
+          const ghToken = process.env.GH_TOKEN;
           const verboseLogging = process.env.VERBOSE === 'true';
 
           const workingDir = process.env.GITHUB_WORKSPACE;
@@ -34,4 +40,4 @@ runs:
 
           const path = require('path');
           const script = require(path.join(actionPath, 'index.js'));
-          await script({ core, github, context, workingDir, analyzeLog, verboseLogging })
+          await script({ core, github, context, workingDir, analyzeLog, ghToken, verboseLogging })
