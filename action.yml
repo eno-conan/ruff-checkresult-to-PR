@@ -32,7 +32,7 @@ runs:
         node-version: 20
     - run: |
         npm install @octokit/core
-        tree node_modules
+        ls -R node_modules
       shell: bash
     # - name: Install dependencies
     #   shell: bash
