@@ -23,24 +23,6 @@ runs:
   using: composite
   steps:
     - uses: actions/checkout@v4
-    # - name: Override octokit/core version and install deps
-    #   shell: bash
-    #   run: |
-    #     npm install
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 20
-    - run: |
-        npm install @octokit/core
-        ls -R node_modules
-      shell: bash
-    # - name: Install dependencies
-    #   shell: bash
-    #   run: ls
-    # - name: Install dependencies
-    #   working-directory: ./
-    #   shell: bash
-    #   run: npm ci
     - uses: actions/github-script@v7
       if: ${{ github.event_name == 'pull_request' }}
       env:
