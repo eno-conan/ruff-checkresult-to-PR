@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { Octokit } = require('@octokit/core');
+// const { Octokit } = require('@octokit/core');
 
 module.exports = async function ({
   core,
@@ -43,12 +43,13 @@ module.exports = async function ({
   // const maxIssuesCommentHeader = '<!-- Flutter Analyze Commenter: maxIssues -->';
   // delete exist maxIssues comment
   try {
+    const octokit = github.Octokit({ auth: ghToken })
+    // const octokit = new Octokit({
+    //   auth: ghToken
+    // })
     console.log(context.repo.owner)
     console.log(context.repo.repo)
     console.log(context.issue.number)
-    const octokit = new Octokit({
-      auth: ghToken
-    })
     const responseRest = await
       octokit.request(`GET /repos/{owner}/{repo}/pulls/comments`, {
         // octokit.request('GET /repos/eno-conan/ruff-check-app/issues/comments', {

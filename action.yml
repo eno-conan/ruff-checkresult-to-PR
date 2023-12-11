@@ -59,4 +59,5 @@ runs:
 
           const path = require('path');
           const script = require(path.join(actionPath, 'index.js'));
+
           await script({ core, github, context, workingDir, analyzeLog, ghToken, verboseLogging })
