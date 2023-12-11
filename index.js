@@ -1,5 +1,4 @@
 const fs = require('fs');
-// const { Octokit } = require('@octokit/core');
 
 module.exports = async function ({
   core,
@@ -35,6 +34,9 @@ module.exports = async function ({
     logVerbose(`Analyzer output: ${analyzerOutput}`);
     issues = parseAnalyzerOutputs(analyzerOutput, workingDir);
     logVerbose(`Parsed issues: ${JSON.stringify(issues, null, 2)}`);
+    console.log(context.repo.owner)
+    console.log(context.repo.repo)
+    console.log(context.issue.number)
   } catch (error) {
     logError(`Failed to read analyze log: ${error.message}`);
     return;
@@ -43,26 +45,41 @@ module.exports = async function ({
   // const maxIssuesCommentHeader = '<!-- Flutter Analyze Commenter: maxIssues -->';
   // delete exist maxIssues comment
   try {
-    const octokit = github.Octokit({ auth: ghToken })
+    // const octokit = github.Octokit({ auth: ghToken })
     // const octokit = new Octokit({
     //   auth: ghToken
     // })
-    console.log(context.repo.owner)
-    console.log(context.repo.repo)
-    console.log(context.issue.number)
-    const responseRest = await
-      octokit.request(`GET /repos/{owner}/{repo}/pulls/comments`, {
-        // octokit.request('GET /repos/eno-conan/ruff-check-app/issues/comments', {
+
+    const body = `Ruff Check commenter found ${issues.length} issues`;
+    // which exceeds the maximum of ${maxIssues}.\n${maxIssuesCommentHeader}`;
+    try {
+      await github.rest.issues.createComment({
         owner: context.repo.owner,
         repo: context.repo.repo,
-        headers: {
-          'X-GitHub-Api-Version': '2022-11-28'
-        }
-      })
-    const data = responseRest.data
-    for (const d of data) {
-      console.log(d.body)
+        issue_number: context.issue.number,
+        body: body
+      });
+      logVerbose(`Number of issues exceeds maximum: ${issues.length} > ${maxIssues}`);
+      return;
     }
+    catch (error) {
+      logError(`Failed to create maxIssues comment: ${error.message}`);
+      return;
+    }
+
+    // const responseRest = await
+    //   octokit.request(`GET /repos/{owner}/{repo}/pulls/comments`, {
+    //     // octokit.request('GET /repos/eno-conan/ruff-check-app/issues/comments', {
+    //     owner: context.repo.owner,
+    //     repo: context.repo.repo,
+    //     headers: {
+    //       'X-GitHub-Api-Version': '2022-11-28'
+    //     }
+    //   })
+    // const data = responseRest.data
+    // for (const d of data) {
+    //   console.log(d.body)
+    // }
 
     // const response = await github.rest.issues.listComments({
     //   owner: context.repo.owner,
